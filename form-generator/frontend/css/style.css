@@ -1,0 +1,725 @@
+/* frontend/css/style.css
+   Form Generator - bakalaura darba prototipa stili
+   Aleksis Lipsnis, RTU 2026 */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: #f5f5f7;
+  color: #1a1a1a;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Header
+   ═══════════════════════════════════════════════════════════════ */
+
+.app-header {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.brand h1 { font-size: 20px; font-weight: 700; color: #111827; }
+.brand p { font-size: 12px; color: #6b7280; margin-top: 2px; }
+
+.badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  background: #eff6ff;
+  color: #2563eb;
+}
+.badge-muted { background: #f3f4f6; color: #6b7280; }
+
+/* ═══════════════════════════════════════════════════════════════
+   Layout - 3 kolonnas
+   ═══════════════════════════════════════════════════════════════ */
+
+.layout {
+  display: grid;
+  grid-template-columns: 340px 1fr 400px;
+  gap: 16px;
+  padding: 16px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1200px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Panels
+   ═══════════════════════════════════════════════════════════════ */
+
+.panel {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  color: #111827;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+}
+
+.panel-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+.panel-header-row h2 {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.step-num {
+  display: inline-block;
+  background: #2563eb;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+.muted { color: #6b7280; font-size: 12px; }
+.muted.small { font-size: 11px; }
+.muted.center { text-align: center; padding: 32px 0; }
+
+/* ═══════════════════════════════════════════════════════════════
+   Form fields
+   ═══════════════════════════════════════════════════════════════ */
+
+.field { margin-bottom: 14px; }
+
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #111827;
+}
+
+.field small {
+  display: block;
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.field small a { color: #2563eb; text-decoration: none; }
+.field small a:hover { text-decoration: underline; }
+
+input[type="text"], input[type="password"], select, textarea {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  color: #111827;
+  font-family: inherit;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+textarea { resize: vertical; min-height: 80px; }
+
+.input-with-toggle {
+  position: relative;
+}
+
+.input-with-toggle input {
+  padding-right: 38px;
+}
+
+.toggle-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 6px;
+  opacity: 0.6;
+}
+.toggle-btn:hover { opacity: 1; }
+
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.example-btn {
+  padding: 4px 10px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  color: #374151;
+  font-family: inherit;
+}
+.example-btn:hover { background: #e5e7eb; }
+
+.btn-primary {
+  width: 100%;
+  padding: 10px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-primary:hover:not(:disabled) { background: #1d4ed8; }
+.btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
+
+.btn-secondary {
+  padding: 6px 12px;
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-secondary:hover:not(:disabled) { background: #f9fafb; }
+.btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ═══════════════════════════════════════════════════════════════
+   Stages - posmu kartes
+   ═══════════════════════════════════════════════════════════════ */
+
+.stage {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.stage-active {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+.stage-done {
+  border-color: #a7f3d0;
+}
+
+/* Posms ar nesaglabātām izmaiņām - oranžs ievērojuma rāmis */
+.stage-dirty {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.12);
+}
+
+.stage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.stage-name {
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stage-circle {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  background: #6b7280;
+  color: white;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.stage-done .stage-circle { background: #059669; }
+.stage-active .stage-circle { background: #2563eb; }
+.stage-dirty .stage-circle { background: #f59e0b; }
+
+.stage-status {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stage-status[data-status="waiting"] { background: #f3f4f6; color: #6b7280; }
+.stage-status[data-status="running"] { background: #fef3c7; color: #b45309; }
+.stage-status[data-status="done"] { background: #ecfdf5; color: #059669; }
+.stage-status[data-status="error"] { background: #fee2e2; color: #b91c1c; }
+
+/* ─────────────────────────────────────────────────────────────
+   Rediģējamie editor lauki CNL un JSON posmiem
+   ───────────────────────────────────────────────────────────── */
+
+.stage-editor {
+  width: 100%;
+  padding: 10px 12px;
+  font-family: "JetBrains Mono", Consolas, Monaco, monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  background: white;
+  color: #111827;
+  border: none;
+  border-radius: 0;
+  /* Lietotājs var mainīt augstumu */
+  resize: vertical;
+  min-height: 140px;
+  max-height: 600px;
+  outline: none;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.stage-editor:focus {
+  background: #fefef9; /* sniega pieskāriens, ka lauks ir aktīvs */
+  box-shadow: inset 0 0 0 2px rgba(37,99,235,0.15);
+}
+
+.stage-editor:disabled {
+  background: #fafafa;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.stage-editor-json {
+  min-height: 180px; /* JSON parasti garāks */
+}
+
+/* Posma darbību josla (poga + dirty indikators) */
+.stage-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: #fafafa;
+  border-top: 1px solid #f3f4f6;
+  flex-wrap: wrap;
+}
+
+.stage-actions:empty { display: none; }
+
+.btn-regenerate {
+  padding: 5px 12px;
+  background: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.btn-regenerate:hover:not(:disabled) { background: #d97706; }
+.btn-regenerate:disabled { background: #d1d5db; cursor: not-allowed; }
+
+.dirty-indicator {
+  font-size: 10px;
+  color: #b45309;
+  font-weight: 600;
+}
+
+.json-error {
+  font-size: 10px;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Kompakts HTML/CSS posma indikators
+   ───────────────────────────────────────────────────────────── */
+
+.stage-compact .stage-compact-body {
+  padding: 10px 12px;
+  background: white;
+}
+
+.stage-meta {
+  padding: 6px 12px;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  font-size: 10px;
+  color: #6b7280;
+  font-family: "JetBrains Mono", Consolas, monospace;
+}
+
+.stage-meta:empty { display: none; }
+
+/* ═══════════════════════════════════════════════════════════════
+   Audit panel (POSMS 4) ar maināmu augstumu
+   ═══════════════════════════════════════════════════════════════ */
+
+.stage-audit .stage-circle { background: #7c3aed; }
+.stage-audit.stage-done { border-color: #c4b5fd; }
+
+.audit-content {
+  padding: 12px;
+  background: white;
+  overflow-y: auto;
+  /* Lietotājs var mainīt augstumu */
+  resize: vertical;
+  min-height: 200px;
+  max-height: 800px;
+  height: 380px;
+  border-bottom: 1px solid transparent;
+}
+
+.audit-summary {
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.audit-avg {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.audit-score {
+  font-size: 22px;
+  font-weight: 700;
+  color: #7c3aed;
+}
+
+.audit-stars {
+  font-size: 14px;
+  color: #f59e0b;
+  letter-spacing: 1px;
+}
+
+.audit-summary-text {
+  font-size: 11px;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+.audit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.audit-item {
+  padding: 8px 10px;
+  background: #fafafa;
+  border-left: 3px solid #d1d5db;
+  border-radius: 4px;
+}
+
+.audit-item-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.audit-item-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.audit-item-score {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.audit-score-good { background: #ecfdf5; color: #059669; }
+.audit-score-mid { background: #fef3c7; color: #b45309; }
+.audit-score-low { background: #fee2e2; color: #b91c1c; }
+
+.audit-item-comment {
+  font-size: 11px;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+.audit-completeness {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+}
+
+.audit-completeness h4 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #1e40af;
+  margin-bottom: 6px;
+}
+
+.audit-completeness p {
+  font-size: 11px;
+  color: #1e3a8a;
+  margin-bottom: 4px;
+}
+
+.audit-missing {
+  margin-top: 6px;
+  font-size: 10px !important;
+  color: #b91c1c !important;
+}
+
+.audit-warning {
+  padding: 8px 12px;
+  background: #fef3c7;
+  border: 1px solid #fbbf24;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #92400e;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Form preview (3 kolonna)
+   ═══════════════════════════════════════════════════════════════ */
+
+.form-preview {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  min-height: 220px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+}
+
+.shadow-host {
+  isolation: isolate;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Metrics panel (paplašināts)
+   ═══════════════════════════════════════════════════════════════ */
+
+.metrics-panel {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.metrics-panel h3 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.metric-cell {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.metric-label {
+  font-size: 9px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.metric-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  word-break: break-all;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Modāls (skatīt kodu)
+   ═══════════════════════════════════════════════════════════════ */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.modal.hidden { display: none; }
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6b7280;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+}
+.close-btn:hover { background: #f3f4f6; color: #111827; }
+
+.modal-tabs {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.tab-btn {
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #6b7280;
+  font-family: inherit;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-btn.active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+  background: white;
+}
+
+.modal-body {
+  flex: 1;
+  overflow: auto;
+  padding: 16px 20px;
+}
+
+.modal-body pre {
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: #111827;
+}
+
+.modal-footer {
+  padding: 12px 20px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.copy-status {
+  font-size: 11px;
+  color: #059669;
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Error box
+   ═══════════════════════════════════════════════════════════════ */
+
+.error-box {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  color: #b91c1c;
+  font-size: 12px;
+}
+
+.hidden { display: none !important; }
+
+.small { font-size: 11px; }

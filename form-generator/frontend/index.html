@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Form Generator — AI-asistēta lietotāja saskarnes formu ģenerēšana</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <h1>Form Generator</h1>
+    <p>AI-asistēta lietotāja saskarnes formu ģenerēšana no prasību aprakstiem</p>
+  </div>
+  <div class="badges">
+    <span class="badge">RTU · Bakalaura darbs · 2026</span>
+    <span class="badge badge-muted">Aleksis Lipsnis</span>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- ── KOLONNA 1: IEVADS ────────────────────────────────────────────── -->
+  <section class="panel">
+    <h2><span class="step-num">1</span>IEVADS</h2>
+    <p class="muted">Aprakstiet formu brīvā valodā. Var izmantot LV, RU, EN vai jebkuru citu valodu.</p>
+
+    <div class="field">
+      <label for="apiKey">OpenRouter API atslēga</label>
+      <div class="input-with-toggle">
+        <input id="apiKey" type="password" placeholder="sk-or-v1-..." autocomplete="off" />
+        <button class="toggle-btn" id="toggleKey" type="button" title="Parādīt/slēpt atslēgu">👁</button>
+      </div>
+      <small>Atslēga tiek saglabāta tikai pārlūkā (localStorage), legūt — <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a></small>
+    </div>
+
+    <div class="field">
+      <label for="modelSelect">Modelis (salīdzināšanai)</label>
+      <select id="modelSelect"></select>
+      <small id="modelDescription"></small>
+    </div>
+
+    <div class="field">
+      <label for="userPrompt">Prasību apraksts</label>
+      <textarea id="userPrompt" rows="6" placeholder="Piemēram: Reģistrācijas forma ar vārdu, e-pastu, paroli un piekrišanu noteikumiem..."></textarea>
+    </div>
+
+    <div class="examples">
+      <span class="muted">Ātrie piemēri:</span>
+      <button class="example-btn" data-example="registration">Reģistrācija</button>
+      <button class="example-btn" data-example="feedback">Atsauksme</button>
+      <button class="example-btn" data-example="order">Pasūtījums</button>
+      <button class="example-btn" data-example="booking">Booking</button>
+    </div>
+
+    <button id="generateBtn" class="btn-primary">Ģenerēt formu</button>
+
+    <div id="errorBox" class="error-box hidden"></div>
+  </section>
+
+  <!-- ── KOLONNA 2: TRANSFORMĀCIJAS PLŪSMA ───────────────────────────── -->
+  <section class="panel">
+    <h2><span class="step-num">2</span>TRANSFORMĀCIJAS PLŪSMA</h2>
+    <p class="muted small">CNL un JSON var rediģēt manuāli. Ja kaut ko mainat, parādās poga, kas perģenerēs tikai turpmākos posmus.</p>
+
+    <!-- Posms 1: CNL (rediģējams) -->
+    <div class="stage" id="stageCnl">
+      <div class="stage-header">
+        <span class="stage-name"><span class="stage-circle">1</span>CNL struktūra</span>
+        <span class="stage-status" data-status="waiting">Gaida</span>
+      </div>
+      <textarea
+        class="stage-editor"
+        id="outputCNL"
+        placeholder="Šeit parādīsies CNL struktūra..."
+        disabled
+        spellcheck="false"
+      ></textarea>
+      <div class="stage-actions">
+        <button class="btn-regenerate hidden" id="regenerateFromCnl" data-stage="json">
+          ↻ Perģenerēt no šī posma
+        </button>
+        <span class="dirty-indicator hidden" id="dirtyCnl">● rediģēts</span>
+      </div>
+      <div class="stage-meta" id="metaCNL"></div>
+    </div>
+
+    <!-- Posms 2: JSON (rediģējams) -->
+    <div class="stage" id="stageJson">
+      <div class="stage-header">
+        <span class="stage-name"><span class="stage-circle">2</span>JSON komponentu koks</span>
+        <span class="stage-status" data-status="waiting">Gaida</span>
+      </div>
+      <textarea
+        class="stage-editor stage-editor-json"
+        id="outputJSON"
+        placeholder="Šeit parādīsies JSON komponentu koks..."
+        disabled
+        spellcheck="false"
+      ></textarea>
+      <div class="stage-actions">
+        <button class="btn-regenerate hidden" id="regenerateFromJson" data-stage="html">
+          ↻ Perģenerēt no šī posma
+        </button>
+        <span class="dirty-indicator hidden" id="dirtyJson">● rediģēts</span>
+        <span class="json-error hidden" id="jsonError"></span>
+      </div>
+      <div class="stage-meta" id="metaJSON"></div>
+    </div>
+
+    <!-- Posms 3: HTML/CSS (kompakts statusa indikators, koda apskate caur "Skatīt kodu") -->
+    <div class="stage stage-compact" id="stageHtml">
+      <div class="stage-header">
+        <span class="stage-name"><span class="stage-circle">3</span>HTML + CSS kods</span>
+        <span class="stage-status" data-status="waiting">Gaida</span>
+      </div>
+      <div class="stage-compact-body">
+        <p class="muted small">Ģenerētais kods pieejams labās kolonnas pogā «Skatīt kodu».</p>
+      </div>
+      <div class="stage-meta" id="metaHTML"></div>
+    </div>
+
+    <!-- Posms 4: Nielsen audits (rediģējami augstumi) -->
+    <div class="stage stage-audit" id="stageAudit">
+      <div class="stage-header">
+        <span class="stage-name"><span class="stage-circle">4</span>Nīlsena heiristiku audits</span>
+        <span class="stage-status" data-status="waiting">Gaida</span>
+      </div>
+      <div class="audit-content audit-resizable" id="auditContent">
+        <p class="muted small">Automātiska kvalitātes pārbaude pret 10 Nīlsena heiristikām...</p>
+      </div>
+      <div class="stage-meta" id="metaAudit"></div>
+    </div>
+  </section>
+
+  <!-- ── KOLONNA 3: REZULTĀTS ────────────────────────────────────────── -->
+  <section class="panel">
+    <div class="panel-header-row">
+      <h2><span class="step-num">3</span>REZULTĀTS</h2>
+      <button id="viewCodeBtn" class="btn-secondary" disabled>&lt;/&gt; Skatīt kodu</button>
+    </div>
+
+    <div id="formPreview" class="form-preview">
+      <p class="muted center">Ģenerētā forma parādīsies šeit pēc transformācijas pabeigšanas</p>
+    </div>
+
+    <!-- Paplašinātās metrikas -->
+    <div class="metrics-panel" id="metricsPanel">
+      <h3>Kopējās metrikas</h3>
+      <div class="metrics-grid">
+        <div class="metric-cell">
+          <div class="metric-label">Modelis</div>
+          <div class="metric-value" id="mModel">—</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-label">Kopējais laiks</div>
+          <div class="metric-value" id="mTime">—</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-label">Žetoni (iz/ie)</div>
+          <div class="metric-value" id="mTokens">—</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-label">Izmaksas</div>
+          <div class="metric-value" id="mCost">—</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-label">Pilnīgums</div>
+          <div class="metric-value" id="mCompleteness">—</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-label">Nīlsena vērtējums</div>
+          <div class="metric-value" id="mNielsen">—</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ── Modāls logs koda apskatīšanai ────────────────────────────────── -->
+<div id="codeModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Ģenerētais kods</h3>
+      <button id="closeModal" class="close-btn">×</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="tab-btn active" data-tab="html">HTML</button>
+      <button class="tab-btn" data-tab="css">CSS</button>
+      <button class="tab-btn" data-tab="combined">Apvienots</button>
+    </div>
+    <div class="modal-body">
+      <pre id="codeContent"><code></code></pre>
+    </div>
+    <div class="modal-footer">
+      <button id="copyBtn" class="btn-secondary">Kopēt</button>
+      <span id="copyStatus" class="copy-status"></span>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
