@@ -1,4 +1,4 @@
-# Form Generator — AI-asistēta formu ģenerēšana
+# Form Generator AI-asistēta formu ģenerēšana
 
 Bakalaura darba praktiskā daļa — **"Mākslīgā intelekta asistēta lietotāja saskarnes formu ģenerēšana no prasību aprakstiem"**.
 
@@ -60,7 +60,7 @@ npm start
 
 Atvērt pārlūkā: **http://localhost:3000**
 
-> **Piezīme:** API atslēgu var ievadīt arī tieši lietotnes saskarnē — tā tiks saglabāta tikai tava pārlūka `localStorage`, nevis nosūtīta nekur citur, izņemot tavu lokālo serveri.
+> **Piezīme:** API atslēgu var ievadīt arī tieši lietotnes saskarnē tā tiks saglabāta tikai tava pārlūka `localStorage`, nevis nosūtīta nekur citur, izņemot tavu lokālo serveri.
 
 ## Lietošana
 
@@ -72,7 +72,6 @@ Atvērt pārlūkā: **http://localhost:3000**
 6. Nospiediet **"Skatīt kodu"**, lai redzētu un nokopētu HTML/CSS
 
 ## Projekta struktūra
-
 ```
 form-generator/
 ├── backend/
@@ -101,13 +100,9 @@ Uzvedne pārveido CNL par mašīnlasāmu JSON struktūru ar definētu šēmu. Iz
 
 ## Tālāka pētīšana
 
-Lai veidotu **rezultātu tabulu bakalaura darbam**, varat:
+Lai veidotu **rezultātu tabulu bakalaura darbam**:
 
 1. Palaist vienu un to pašu uzvedni ar dažādiem modeļiem
 2. Salīdzināt metrikās — laiks, žetoni
 3. Manuāli novērtēt kvalitāti pret Nīlsena heiristikām [21]
 4. Veikt statistisku analīzi (piem., 10 ģenerēšanas reizes uz modeli)
-
-## Licence
-
-MIT — brīvi izmantojams akadēmiskā darbā ar atsauci.
