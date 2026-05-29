@@ -1,13 +1,4 @@
-// frontend/js/app.js
-// Galvenā lietotnes loģika - SSE notikumu apstrāde, UI atjaunināšana, Shadow DOM rendēšana.
-// Bakalaura darbs, Aleksis Lipsnis, RTU 2026.
-
-// ═══════════════════════════════════════════════════════════════════
-// DOM elementi
-// ═══════════════════════════════════════════════════════════════════
-
 const el = {
-  // Ievads
   apiKey: document.getElementById('apiKey'),
   toggleKey: document.getElementById('toggleKey'),
   modelSelect: document.getElementById('modelSelect'),
@@ -16,7 +7,6 @@ const el = {
   generateBtn: document.getElementById('generateBtn'),
   errorBox: document.getElementById('errorBox'),
 
-  // Posmi
   stageCnl: document.getElementById('stageCnl'),
   stageJson: document.getElementById('stageJson'),
   stageHtml: document.getElementById('stageHtml'),
@@ -31,14 +21,12 @@ const el = {
   metaHTML: document.getElementById('metaHTML'),
   metaAudit: document.getElementById('metaAudit'),
 
-  // Regenerate pogas
   regenerateFromCnl: document.getElementById('regenerateFromCnl'),
   regenerateFromJson: document.getElementById('regenerateFromJson'),
   dirtyCnl: document.getElementById('dirtyCnl'),
   dirtyJson: document.getElementById('dirtyJson'),
   jsonError: document.getElementById('jsonError'),
 
-  // Rezultāts
   formPreview: document.getElementById('formPreview'),
   viewCodeBtn: document.getElementById('viewCodeBtn'),
   metricsPanel: document.getElementById('metricsPanel'),
@@ -50,7 +38,6 @@ const el = {
   mCompleteness: document.getElementById('mCompleteness'),
   mNielsen: document.getElementById('mNielsen'),
 
-  // Modāls
   codeModal: document.getElementById('codeModal'),
   closeModal: document.getElementById('closeModal'),
   codeContent: document.querySelector('#codeContent code'),
@@ -58,27 +45,19 @@ const el = {
   copyStatus: document.getElementById('copyStatus'),
 };
 
-// Globālais stāvoklis
 const state = {
   result: { html: '', css: '' },
   currentTab: 'html',
   isGenerating: false,
 
-  // Sākotnējās modeļa atbildes (lietotāja rediģēšanas atskaites punkts)
   originalCNL: '',
-  originalJSON: '', // glabājam kā formatētu JSON virkni
+  originalJSON: '', 
 
-  // Parsētais JSON koks (pēdējais derīgais)
   jsonTree: null,
 
-  // Pēdējie ievades dati - vajadzīgi perģenerēšanai
   lastPrompt: '',
   lastModel: ''
 };
-
-// ═══════════════════════════════════════════════════════════════════
-// Inicializācija
-// ═══════════════════════════════════════════════════════════════════
 
 window.addEventListener('DOMContentLoaded', () => {
   loadApiKey();
@@ -99,10 +78,10 @@ async function loadModels() {
     el.modelSelect.innerHTML = '';
 
     const tiers = {
-      frontier: { label: 'Frontier modeļi (jaunākie)', models: [] },
-      premium: { label: 'Premium modeļi', models: [] },
+      frontier: { label: 'Jaudīgākie modeļi (jaunākie)', models: [] },
+      premium: { label: 'Vidējas klases modeļi', models: [] },
       fast: { label: 'Ātrie modeļi (budget-friendly)', models: [] },
-      budget: { label: 'Open-source modeļi', models: [] }
+      budget: { label: 'Ātvērta koda modelis', models: [] }
     };
 
     data.models.forEach(m => {
@@ -148,20 +127,16 @@ function attachEventListeners() {
 
   el.generateBtn.addEventListener('click', handleGenerate);
 
-  // Examples
   document.querySelectorAll('.example-btn').forEach(btn => {
     btn.addEventListener('click', () => loadExample(btn.dataset.example));
   });
 
-  // Rediģēšanas izsekošana CNL un JSON laukos
   el.outputCNL.addEventListener('input', handleCnlEdit);
   el.outputJSON.addEventListener('input', handleJsonEdit);
 
-  // Perģenerēšanas pogas
   el.regenerateFromCnl.addEventListener('click', () => runRegenerate('json'));
   el.regenerateFromJson.addEventListener('click', () => runRegenerate('html'));
 
-  // Modal
   el.viewCodeBtn.addEventListener('click', openCodeModal);
   el.closeModal.addEventListener('click', closeCodeModal);
   el.codeModal.addEventListener('click', e => {
@@ -182,10 +157,6 @@ function loadExample(type) {
   };
   el.userPrompt.value = examples[type] || '';
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// Galvenā ģenerēšanas plūsma (no nulles)
-// ═══════════════════════════════════════════════════════════════════
 
 async function handleGenerate() {
   if (state.isGenerating) return;
@@ -209,10 +180,6 @@ async function handleGenerate() {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// Perģenerēšana no konkrēta posma
-// ═══════════════════════════════════════════════════════════════════
-
 async function runRegenerate(fromStage) {
   if (state.isGenerating) return;
 
@@ -220,7 +187,6 @@ async function runRegenerate(fromStage) {
   if (!apiKey) return showError('Ievadiet OpenRouter API atslēgu');
   if (!state.lastPrompt) return showError('Vispirms ģenerējiet formu no nulles');
 
-  // Sagatavojam datus atkarībā no posma
   const payload = {
     prompt: state.lastPrompt,
     model: state.lastModel,
@@ -229,16 +195,13 @@ async function runRegenerate(fromStage) {
   };
 
   if (fromStage === 'json') {
-    // Lietotājs rediģēja CNL → padodam jauno CNL
     const editedCnl = el.outputCNL.value.trim();
     if (!editedCnl) return showError('CNL teksts ir tukšs');
     payload.cnl = editedCnl;
   } else if (fromStage === 'html') {
-    // Lietotājs rediģēja JSON → padodam jauno JSON
     const editedJson = el.outputJSON.value.trim();
     if (!editedJson) return showError('JSON teksts ir tukšs');
 
-    // Klienta puses JSON validācija pirms nosūtīšanas
     try {
       JSON.parse(editedJson);
       hideJsonError();
@@ -253,10 +216,6 @@ async function runRegenerate(fromStage) {
 
   await runPipelineRequest('/api/regenerate', payload);
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// Vienota pipeline pieprasījuma loģika (gan /generate, gan /regenerate)
-// ═══════════════════════════════════════════════════════════════════
 
 async function runPipelineRequest(endpoint, payload) {
   state.isGenerating = true;
@@ -286,7 +245,6 @@ async function runPipelineRequest(endpoint, payload) {
     el.generateBtn.textContent = 'Ģenerēt formu';
     el.regenerateFromCnl.disabled = false;
     el.regenerateFromJson.disabled = false;
-    // Pēc perģenerēšanas atkārtoti pārvērtējam dirty statusu
     updateDirtyIndicators();
   }
 }
@@ -340,7 +298,6 @@ function handleSSEEvent({ event, data }) {
       break;
 
     case 'cnl':
-      // Atjauninām CNL un fiksējam to kā sākotnēju (oriģinālu) versiju
       el.outputCNL.value = data.content;
       state.originalCNL = data.content;
       el.outputCNL.disabled = false;
@@ -350,7 +307,6 @@ function handleSSEEvent({ event, data }) {
       break;
 
     case 'json':
-      // Atjauninām JSON un fiksējam kā oriģinālu
       const jsonStr = JSON.stringify(data.parsed, null, 2);
       el.outputJSON.value = jsonStr;
       state.originalJSON = jsonStr;
@@ -363,7 +319,6 @@ function handleSSEEvent({ event, data }) {
       break;
 
     case 'html':
-      // HTML/CSS netiek attēlots kā teksts - rezultāts iet uz formas priekšskatījumu
       state.result = { html: data.html, css: data.css };
       el.metaHTML.innerHTML = renderMeta(data.metrics);
       markStageDone('html');
@@ -394,16 +349,11 @@ function handleSSEEvent({ event, data }) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// Rediģēšanas izsekošana - dirty stāvoklis
-// ═══════════════════════════════════════════════════════════════════
-
 function handleCnlEdit() {
   updateDirtyIndicators();
 }
 
 function handleJsonEdit() {
-  // Klienta puses JSON validācija pa to laiku, kad lietotājs raksta
   const text = el.outputJSON.value.trim();
   if (text) {
     try {
@@ -422,7 +372,6 @@ function updateDirtyIndicators() {
   const cnlDirty = el.outputCNL.value !== state.originalCNL && state.originalCNL !== '';
   const jsonDirty = el.outputJSON.value !== state.originalJSON && state.originalJSON !== '';
 
-  // CNL dirty stāvoklis
   if (cnlDirty) {
     el.dirtyCnl.classList.remove('hidden');
     el.regenerateFromCnl.classList.remove('hidden');
@@ -433,14 +382,12 @@ function updateDirtyIndicators() {
     el.stageCnl.classList.remove('stage-dirty');
   }
 
-  // JSON dirty stāvoklis - rāda pogu tikai ja JSON ir derīgs
   const jsonValid = isValidJson(el.outputJSON.value);
   if (jsonDirty && jsonValid) {
     el.dirtyJson.classList.remove('hidden');
     el.regenerateFromJson.classList.remove('hidden');
     el.stageJson.classList.add('stage-dirty');
   } else if (jsonDirty && !jsonValid) {
-    // Dirty bet nederīgs - rādam indikatoru, bet pogu paslēpjam
     el.dirtyJson.classList.remove('hidden');
     el.regenerateFromJson.classList.add('hidden');
     el.stageJson.classList.add('stage-dirty');
@@ -470,10 +417,6 @@ function hideJsonError() {
   el.jsonError.classList.add('hidden');
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// UI atjaunināšana
-// ═══════════════════════════════════════════════════════════════════
-
 function markStageStarted(stage) {
   const stageEl = document.getElementById('stage' + capitalize(stage));
   if (!stageEl) return;
@@ -481,7 +424,7 @@ function markStageStarted(stage) {
   statusEl.dataset.status = 'running';
   statusEl.textContent = 'Ģenerē...';
   stageEl.classList.add('stage-active');
-  stageEl.classList.remove('stage-dirty'); // Tīrām dirty statusu, jo posms tiek atjaunots
+  stageEl.classList.remove('stage-dirty');
 }
 
 function markStageDone(stage) {
@@ -602,7 +545,6 @@ function updateTotalMetrics(metrics) {
 }
 
 function resetUI() {
-  // Outputs - tīrām un atspējojam rediģēšanu līdz pirmajai veiksmīgai ģenerēšanai
   el.outputCNL.value = '';
   el.outputCNL.placeholder = 'Ģenerē...';
   el.outputCNL.disabled = true;
@@ -611,18 +553,15 @@ function resetUI() {
   el.outputJSON.disabled = true;
   el.auditContent.innerHTML = '<p class="muted small">Gaida HTML pabeigšanu...</p>';
 
-  // Oriģinālie teksti
   state.originalCNL = '';
   state.originalJSON = '';
   state.jsonTree = null;
 
-  // Meta
   el.metaCNL.textContent = '';
   el.metaJSON.textContent = '';
   el.metaHTML.textContent = '';
   el.metaAudit.textContent = '';
 
-  // Statuses
   ['Cnl', 'Json', 'Html', 'Audit'].forEach(s => {
     const stageEl = document.getElementById('stage' + s);
     if (!stageEl) return;
@@ -653,21 +592,13 @@ function resetUI() {
   el.viewCodeBtn.disabled = true;
 }
 
-/**
- * Daļēja UI atjaunošana perģenerēšanas gadījumā.
- * Saglabājam to, kas paliek nemainīgs, un atjaunojam tikai posmus aiz fromStage.
- *
- * fromStage='json' (CNL rediģēts): paliek CNL kā ir, JSON/HTML/audit tiek pārģenerēti
- * fromStage='html' (JSON rediģēts): paliek CNL un JSON, HTML/audit tiek pārģenerēti
- */
 function resetUIForRegenerate(fromStage) {
-  const resetCnl = false; // CNL nekad netiek pārģenerēts no UI
-  const resetJson = fromStage === 'json'; // tikai ja sākam no JSON posma
-  const resetHtml = true;  // HTML vienmēr tiek pārģenerēts
-  const resetAudit = true; // audits vienmēr atkārtots
+  const resetCnl = false; 
+  const resetJson = fromStage === 'json'; 
+  const resetHtml = true;  
+  const resetAudit = true;
 
   if (resetJson) {
-    // CNL paliek kā ir, bet markējam ka tas tagad ir oriģināls
     state.originalCNL = el.outputCNL.value;
     el.outputJSON.value = '';
     el.outputJSON.placeholder = 'Pārģenerē...';
@@ -680,9 +611,7 @@ function resetUIForRegenerate(fromStage) {
     statusEl.dataset.status = 'waiting';
     statusEl.textContent = 'Gaida';
   } else {
-    // CNL paliek kā oriģināls
     state.originalCNL = el.outputCNL.value;
-    // JSON arī paliek kā oriģināls (ja lietotājs rediģēja - kā tagad ir)
     state.originalJSON = el.outputJSON.value;
   }
 
@@ -710,18 +639,13 @@ function resetUIForRegenerate(fromStage) {
     el.mCompleteness.textContent = '—';
   }
 
-  // Visu metru daļa - pārrāda tikai pēc 'done' notikuma
   el.mTime.textContent = '—';
   el.mTokens.textContent = '—';
   el.mCost.textContent = '—';
 
-  // Tīrām dirty indikatorus, jo tagad sākam jaunu ciklu
   updateDirtyIndicators();
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// Shadow DOM rendering — formas priekšskatījums
-// ═══════════════════════════════════════════════════════════════════
 
 function renderFormPreview(html, css) {
   el.formPreview.innerHTML = '';
@@ -747,10 +671,6 @@ function renderFormPreview(html, css) {
     });
   });
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// Modāls — kods
-// ═══════════════════════════════════════════════════════════════════
 
 function openCodeModal() {
   if (!state.result.html) return;
@@ -802,10 +722,6 @@ async function handleCopy() {
     el.copyStatus.textContent = 'Kļūda kopējot';
   }
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// Helpers
-// ═══════════════════════════════════════════════════════════════════
 
 function formatMs(ms) {
   if (!ms || ms <= 0) return '—';

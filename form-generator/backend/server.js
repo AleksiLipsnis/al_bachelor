@@ -1,8 +1,3 @@
-// backend/server.js
-// Bakalaura darba prototipa serveris
-// Arhitektūra: Natural Language → CNL → JSON component tree → HTML/CSS → LLM Audit
-// Autors: Aleksis Lipsnis
-
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -18,28 +13,11 @@ app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
-// --- API endpoints ---
-
-// Pieejamo modeļu saraksts
 app.get('/api/models', (req, res) => {
   res.json({ models: AVAILABLE_MODELS });
 });
 
-// ═══════════════════════════════════════════════════════════════════
-// Pipeline izpildes plūsma (kopīga /api/generate un /api/regenerate)
-//
-// Pipeline posmi:
-//   cnl    - Natural Language → CNL
-//   json   - CNL → JSON komponentu koks
-//   html   - JSON komponentu koks → HTML + CSS
-//   audit  - LLM kvalitātes audits pret Nīlsena heiristikām
-//
-// Funkcijai tiek padots starta posms un jau pieejamie dati no iepriekšējiem posmiem
-// (piem., ja sākam no 'json' posma, lietotājs ir rediģējis CNL un padod savu CNL versiju).
-// ═══════════════════════════════════════════════════════════════════
-
 async function runPipeline({ res, send, prompt, model, apiKey, fromStage, providedCNL, providedJSON }) {
-  // Definējam visus posmus secīgi - tālāk darbojas tikai tie, kas ir aiz `fromStage`
   const stagesOrder = ['cnl', 'json', 'html', 'audit'];
   const fromIdx = stagesOrder.indexOf(fromStage);
 
@@ -47,7 +25,6 @@ async function runPipeline({ res, send, prompt, model, apiKey, fromStage, provid
     throw new Error(`Nezināms pipeline posms: ${fromStage}`);
   }
 
-  // Metriku objekts katram posmam
   const metrics = {
     cnl:   { durationMs: 0, tokensIn: 0, tokensOut: 0, costUsd: 0, skipped: fromIdx > 0 },
     json:  { durationMs: 0, tokensIn: 0, tokensOut: 0, costUsd: 0, skipped: fromIdx > 1 },
@@ -64,9 +41,6 @@ async function runPipeline({ res, send, prompt, model, apiKey, fromStage, provid
   let jsonTree = providedJSON;
   let htmlOutput = null;
 
-  // ═══════════════════════════════════════════════════════════════
-  // POSMS 1: Natural Language → CNL (palaiž tikai ja sākam no šejienes)
-  // ═══════════════════════════════════════════════════════════════
   if (fromIdx === 0) {
     send('stage', { stage: 'cnl', status: 'start' });
     const t1 = Date.now();
@@ -79,9 +53,6 @@ async function runPipeline({ res, send, prompt, model, apiKey, fromStage, provid
     send('cnl', { content: cnlText, metrics: metrics.cnl });
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  // POSMS 2: CNL → JSON (palaiž ja sākam no cnl vai json posma)
-  // ═══════════════════════════════════════════════════════════════
   if (fromIdx <= 1) {
     if (!cnlText) {
       throw new Error('Trūkst CNL teksta posmam JSON');
@@ -97,9 +68,6 @@ async function runPipeline({ res, send, prompt, model, apiKey, fromStage, provid
     send('json', { content: jsonResult.content, parsed: jsonTree, metrics: metrics.json });
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  // POSMS 3: JSON → HTML/CSS (palaiž visās perģenerēšanas situācijās līdz audita)
-  // ═══════════════════════════════════════════════════════════════
   if (fromIdx <= 2) {
     if (!jsonTree) {
       throw new Error('Trūkst JSON koka posmam HTML');
@@ -114,15 +82,9 @@ async function runPipeline({ res, send, prompt, model, apiKey, fromStage, provid
     send('html', { html: htmlOutput.html, css: htmlOutput.css, metrics: metrics.html });
   }
 
-  // Aprēķinām ģenerēšanas (3 pirmie posmi) kopējās izmaksas
   const generationCost = metrics.cnl.costUsd + metrics.json.costUsd + metrics.html.costUsd;
 
-  // ═══════════════════════════════════════════════════════════════
-  // POSMS 4: LLM kvalitātes audits (vienmēr palaiž, jo ir atkarīgs no HTML)
-  // ═══════════════════════════════════════════════════════════════
-  // Tiek izmantots cits modelis nekā ģenerēšanā, lai izvairītos no pašnovērtējuma efekta.
   if (!htmlOutput) {
-    // Šī situācija nedrīkstētu rasties, jo HTML vienmēr tiek palaists
     throw new Error('Trūkst HTML rezultāta auditam');
   }
 
@@ -150,12 +112,10 @@ async function runPipeline({ res, send, prompt, model, apiKey, fromStage, provid
       metrics: metrics.audit
     });
   } catch (auditErr) {
-    // Auditora kļūda nedrīkst sabojāt visu plūsmu - ģenerēšana jau ir gatava
     console.error('[AUDIT ERROR]', auditErr.message);
     send('audit_error', { message: auditErr.message });
   }
 
-  // Kopējie rezultāti
   metrics.totalMs = Date.now() - startTotal;
   metrics.totalCostUsd = generationCost + metrics.audit.costUsd;
   metrics.generationCostUsd = generationCost;
@@ -163,9 +123,6 @@ async function runPipeline({ res, send, prompt, model, apiKey, fromStage, provid
   send('done', { metrics });
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// POST /api/generate - pilna pipeline plūsma no nulles
-// ═══════════════════════════════════════════════════════════════════
 app.post('/api/generate', async (req, res) => {
   const { prompt, model, apiKey } = req.body;
 
@@ -199,20 +156,6 @@ app.post('/api/generate', async (req, res) => {
   }
 });
 
-// ═══════════════════════════════════════════════════════════════════
-// POST /api/regenerate - perģenerēšana no konkrēta posma
-//
-// Lietotājs ir rediģējis CNL vai JSON UI un grib palaist tikai turpmākos posmus.
-// Tas ir koncepcijas galvenais ieguvums - lokālas korekcijas bez visa pipeline atkārtošanas.
-//
-// Parametri:
-//   prompt   - oriģinālais lietotāja prasību apraksts (auditā nepieciešams)
-//   model    - LLM modelis
-//   apiKey   - API atslēga
-//   fromStage - 'json' (ja CNL rediģēts) vai 'html' (ja JSON rediģēts)
-//   cnl      - rediģētais CNL teksts (obligāts ja fromStage='json')
-//   json     - rediģētais JSON koks (obligāts ja fromStage='html')
-// ═══════════════════════════════════════════════════════════════════
 app.post('/api/regenerate', async (req, res) => {
   const { prompt, model, apiKey, fromStage, cnl, json } = req.body;
 
@@ -236,7 +179,6 @@ app.post('/api/regenerate', async (req, res) => {
     });
   }
 
-  // Ja lietotājs padod JSON virknei - mēģinām parsēt
   let parsedJSON = null;
   if (fromStage === 'html') {
     try {
@@ -264,8 +206,6 @@ app.post('/api/regenerate', async (req, res) => {
     res.end();
   }
 });
-
-// --- Palīgfunkcijas SSE protokolam ---
 
 function setupSSE(res) {
   res.setHeader('Content-Type', 'text/event-stream');

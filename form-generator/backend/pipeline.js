@@ -1,18 +1,5 @@
-// backend/pipeline.js
-// Daudzslāņu ģenerēšanas arhitektūra (atbilst bakalaura darba 3.1. nodaļai):
-//   POSMS 1: Natural Language (brīvs teksts) → CNL (Controlled Natural Language)
-//   POSMS 2: CNL → JSON komponentu koks (starpreprezentācija)
-//   POSMS 3: JSON komponentu koks → HTML/CSS kods
-//   POSMS 4: LLM kvalitātes audits pret Nīlsena 10 heiristikām (4. nodaļa)
-//
-// Šāda hibridpieeja samazina halucināciju risku [19] un ļauj lokālas korekcijas
-// bez pilnas ģenerēšanas atkārtošanas [7, 17].
-
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-/**
- * Zema līmeņa palīgfunkcija OpenRouter API izsaukumam.
- */
 async function callOpenRouter({ model, apiKey, system, user, jsonMode = false }) {
   const body = {
     model,
@@ -52,10 +39,6 @@ async function callOpenRouter({ model, apiKey, system, user, jsonMode = false })
 
   return { content, usage };
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// POSMS 1: Natural Language → CNL
-// ═══════════════════════════════════════════════════════════════════
 
 const CNL_SYSTEM_PROMPT = `Tu esi prasību inženieris, kas pārveido brīvas formas lietotāja aprakstus Kontrolētās Dabīgās Valodas (CNL) specifikācijā.
 
@@ -101,10 +84,6 @@ Pārveido šo aprakstu CNL formātā atbilstoši šablonam.`;
     jsonMode: false
   });
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// POSMS 2: CNL → JSON komponentu koks
-// ═══════════════════════════════════════════════════════════════════
 
 const JSON_SCHEMA_EXAMPLE = {
   formName: "Pieteikuma forma",
@@ -168,12 +147,10 @@ Pārveido to JSON komponentu kokā atbilstoši šēmai.`;
     jsonMode: true
   });
 
-  // Mēģinām parsēt JSON
   let parsed = null;
   try {
     parsed = JSON.parse(result.content);
   } catch (err) {
-    // Dažreiz modelis atbild ar Markdown bloku - mēģinām izvilkt JSON
     const match = result.content.match(/\{[\s\S]*\}/);
     if (match) {
       try {
@@ -188,10 +165,6 @@ Pārveido to JSON komponentu kokā atbilstoši šēmai.`;
 
   return { ...result, parsed };
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// POSMS 3: JSON komponentu koks → HTML/CSS
-// ═══════════════════════════════════════════════════════════════════
 
 const HTML_SYSTEM_PROMPT = `Tu esi priekšpuses izstrādātājs, kas ģenerē HTML un CSS no JSON komponentu koka.
 
@@ -244,8 +217,6 @@ ${JSON.stringify(jsonTree, null, 2)}
     jsonMode: true
   });
 
-  // Mēģinām vairāku līmeņu parsēšanu - tas ir nepieciešams, jo modeļu izvade
-  // ar garu HTML/CSS saturu reizēm satur nekorekti escapētas rakstzīmes.
   const parsed = extractHtmlCss(result.content);
   if (!parsed) {
     throw new Error('Neizdevās izvilkt HTML/CSS no modeļa atbildes pat ar fallback metodēm');
@@ -258,17 +229,6 @@ ${JSON.stringify(jsonTree, null, 2)}
   };
 }
 
-/**
- * Trīs līmeņu JSON parsēšana modeļu izvadei ar HTML+CSS saturu.
- * Modeļi reizēm atgriež JSON ar nekorekti escapētu HTML/CSS saturu, kur jaunās rindas
- * vai pēdiņas iekšā lauku vērtībās nav escapētas. Šī funkcija izmēģina trīs stratēģijas:
- *
- *   1. Tieša JSON.parse - veiksmīga lielākajā daļā gadījumu.
- *   2. Cleanup - novācam Markdown apvalku un atrod ietverošo {...} bloku.
- *   3. Regex extraction - tieši izvelkam "html" un "css" lauku saturu, ja JSON ir salauzts.
- *
- * Atgriež { html, css } vai null, ja neviena metode nestrādā.
- */
 function extractHtmlCss(content) {
   if (!content) return null;
 
@@ -316,13 +276,6 @@ function extractHtmlCss(content) {
 
   return null;
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// POSMS 4: LLM kvalitātes audits pret Nīlsena 10 heiristikām
-// ═══════════════════════════════════════════════════════════════════
-// Šis posms tiek izpildīts ar ATŠĶIRĪGU modeli, nekā ģenerēšanas modelis,
-// lai izvairītos no pašnovērtējuma efekta (model bias).
-// Saskaņā ar darba 3.6. nodaļā definēto kvalitātes mehānismu.
 
 const NIELSEN_HEURISTICS = [
   '1. Sistēmas statusa redzamība',
@@ -417,7 +370,6 @@ Veic auditu pret 10 Nīlsena heiristikām un atgriež strukturētu JSON atbildi.
     }
   }
 
-  // Validējam struktūru un aprēķinām vidējo vērtējumu, ja tas nav norādīts
   if (parsed.heuristics && Array.isArray(parsed.heuristics) && parsed.heuristics.length > 0) {
     if (typeof parsed.averageScore !== 'number') {
       const sum = parsed.heuristics.reduce((s, h) => s + (Number(h.score) || 0), 0);

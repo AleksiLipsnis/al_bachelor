@@ -1,16 +1,4 @@
-// backend/models.js
-// Pieejamo OpenRouter modeļu saraksts pētījumam.
-// Izvēlēti pārstāvji no galvenajiem piegādātājiem un cenu kategorijām,
-// lai varētu salīdzināt kvalitāti, ātrumu un izmaksas.
-//
-// Cenas tiek izmantotas, lai aprēķinātu vienas ģenerēšanas izmaksas dolāros.
-// Cenas - par 1 miljonu žetonu (in/out). Pārbaudīt aktualitāti https://openrouter.ai/models
-
 const AVAILABLE_MODELS = [
-  // ═══════════════════════════════════════════════════════════════
-  // FRONTIER / PREMIUM MODEĻI - jaunākie un jaudīgākie
-  // ═══════════════════════════════════════════════════════════════
-
   {
     id: 'anthropic/claude-opus-4.7',
     name: 'Claude Opus 4.7',
@@ -36,9 +24,6 @@ const AVAILABLE_MODELS = [
     description: 'DeepSeek frontier modelis - 1.6T parametri, salīdzināms ar GPT-5.5 par 1/10 cenas'
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  // PREMIUM MODEĻI - mid-range, lielisks cenas-veiktspējas balanss
-  // ═══════════════════════════════════════════════════════════════
 
   {
     id: 'anthropic/claude-sonnet-4.6',
@@ -66,9 +51,6 @@ const AVAILABLE_MODELS = [
     description: 'Google multimodāls modelis ar lielu konteksta logu'
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  // FAST / BUDGET MODEĻI - ātri un ekonomiski
-  // ═══════════════════════════════════════════════════════════════
 
   {
     id: 'anthropic/claude-haiku-4.5',
@@ -87,9 +69,6 @@ const AVAILABLE_MODELS = [
     description: 'Ekonomiska GPT-5 versija, piemērota lieliem eksperimentiem'
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  // OPEN-SOURCE - atvērtā pirmkoda modeļi salīdzināšanai
-  // ═══════════════════════════════════════════════════════════════
 
   {
     id: 'meta-llama/llama-4-maverick',
@@ -101,12 +80,8 @@ const AVAILABLE_MODELS = [
   },
 ];
 
-// Modelis, ko izmantot LLM auditoram (Nīlsena heiristiku vērtēšanai).
-// Tas atšķiras no ģenerēšanas modeļa, lai izvairītos no pašnovērtējuma efekta.
 const DEFAULT_AUDITOR_MODEL = 'anthropic/claude-opus-4.7';
 
-// Funkcija, kas atgriež auditora modeli, kas atšķiras no ģenerēšanas modeļa.
-// Ja ģenerēšana notika ar Anthropic - auditoram izmantojam GPT, un otrādi.
 function getAuditorModel(generationModel) {
   if (generationModel.startsWith('anthropic/')) {
     return 'openai/gpt-5.5';
@@ -117,12 +92,10 @@ function getAuditorModel(generationModel) {
   return DEFAULT_AUDITOR_MODEL;
 }
 
-// Aprēķina vienas API izsaukuma izmaksas dolāros, balstoties uz žetonu skaitu
 function calculateCost(modelId, tokensIn, tokensOut) {
   const model = AVAILABLE_MODELS.find(m => m.id === modelId);
   if (!model || !model.pricing) return 0;
 
-  // Cenas ir par 1 miljonu žetonu
   const costIn = (tokensIn / 1_000_000) * model.pricing.input;
   const costOut = (tokensOut / 1_000_000) * model.pricing.output;
   return costIn + costOut;

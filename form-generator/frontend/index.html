@@ -21,7 +21,6 @@
 
 <main class="layout">
 
-  <!-- ── KOLONNA 1: IEVADS ────────────────────────────────────────────── -->
   <section class="panel">
     <h2><span class="step-num">1</span>IEVADS</h2>
     <p class="muted">Aprakstiet formu brīvā valodā. Var izmantot LV, RU, EN vai jebkuru citu valodu.</p>
@@ -59,12 +58,10 @@
     <div id="errorBox" class="error-box hidden"></div>
   </section>
 
-  <!-- ── KOLONNA 2: TRANSFORMĀCIJAS PLŪSMA ───────────────────────────── -->
   <section class="panel">
     <h2><span class="step-num">2</span>TRANSFORMĀCIJAS PLŪSMA</h2>
     <p class="muted small">CNL un JSON var rediģēt manuāli. Ja kaut ko mainat, parādās poga, kas perģenerēs tikai turpmākos posmus.</p>
 
-    <!-- Posms 1: CNL (rediģējams) -->
     <div class="stage" id="stageCnl">
       <div class="stage-header">
         <span class="stage-name"><span class="stage-circle">1</span>CNL struktūra</span>
@@ -86,7 +83,6 @@
       <div class="stage-meta" id="metaCNL"></div>
     </div>
 
-    <!-- Posms 2: JSON (rediģējams) -->
     <div class="stage" id="stageJson">
       <div class="stage-header">
         <span class="stage-name"><span class="stage-circle">2</span>JSON komponentu koks</span>
@@ -109,7 +105,6 @@
       <div class="stage-meta" id="metaJSON"></div>
     </div>
 
-    <!-- Posms 3: HTML/CSS (kompakts statusa indikators, koda apskate caur "Skatīt kodu") -->
     <div class="stage stage-compact" id="stageHtml">
       <div class="stage-header">
         <span class="stage-name"><span class="stage-circle">3</span>HTML + CSS kods</span>
@@ -121,7 +116,6 @@
       <div class="stage-meta" id="metaHTML"></div>
     </div>
 
-    <!-- Posms 4: Nielsen audits (rediģējami augstumi) -->
     <div class="stage stage-audit" id="stageAudit">
       <div class="stage-header">
         <span class="stage-name"><span class="stage-circle">4</span>Nīlsena heiristiku audits</span>
@@ -134,7 +128,6 @@
     </div>
   </section>
 
-  <!-- ── KOLONNA 3: REZULTĀTS ────────────────────────────────────────── -->
   <section class="panel">
     <div class="panel-header-row">
       <h2><span class="step-num">3</span>REZULTĀTS</h2>
@@ -145,7 +138,6 @@
       <p class="muted center">Ģenerētā forma parādīsies šeit pēc transformācijas pabeigšanas</p>
     </div>
 
-    <!-- Paplašinātās metrikas -->
     <div class="metrics-panel" id="metricsPanel">
       <h3>Kopējās metrikas</h3>
       <div class="metrics-grid">
@@ -178,7 +170,6 @@
   </section>
 </main>
 
-<!-- ── Modāls logs koda apskatīšanai ────────────────────────────────── -->
 <div id="codeModal" class="modal hidden">
   <div class="modal-content">
     <div class="modal-header">
